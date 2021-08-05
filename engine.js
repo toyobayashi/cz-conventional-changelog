@@ -75,6 +75,27 @@ module.exports = function(options) {
           choices: choices,
           default: options.defaultType
         },
+        Array.isArray(options.scopes)
+          ? {
+            type: 'list',
+            name: 'scope',
+            message: "Select the scope:",
+            choices: ([{ name: '[Empty]', value: '' }])
+              .concat(options.scopes.concat([{ name: '[Custom]', value: '?' }])),
+            default: ''
+          }
+          : {
+            type: 'input',
+            name: 'scope',
+            message:
+              'What is the scope of this change (e.g. component or file name): (press enter to skip)',
+            default: options.defaultScope,
+            filter: function(value) {
+              return options.disableScopeLowerCase
+                ? value.trim()
+                : value.trim().toLowerCase();
+            }
+          },
         {
           type: 'input',
           name: 'scope',
@@ -85,6 +106,9 @@ module.exports = function(options) {
             return options.disableScopeLowerCase
               ? value.trim()
               : value.trim().toLowerCase();
+          },
+          when: function(answers) {
+            return Array.isArray(options.scopes) && answers.scope === '?'
           }
         },
         {
